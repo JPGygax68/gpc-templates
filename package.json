@@ -1,8 +1,8 @@
 {
-  "name": "gpc-templates",
+  "name": "gpc-template",
   "version": "0.1.0",
   "description": "Code templating engine, asynchronous through promises",
-  "main": "gpc-templates.js",
+  "main": "template.js",
   "lib": ".",
   "directories": {
     "test": "test"

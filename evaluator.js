@@ -20,13 +20,17 @@ function() {
     while ((m = pat.exec(expr)) !== null) {
       if (m[3]) {
         result += expr.slice(p, m.index);
-        if (!context[m[3]]) result += 'data.'; else result += 'context.';
+        if      (isNumber(m[3])) ;
+        else if (!context[m[3]]) result += 'data.'; 
+        else                     result += 'context.';
         result += m[3];
         p = pat.lastIndex;
       }
     }
     if (p < expr.length) result += expr.slice(p);
     return result;
+    
+    function isNumber(s) { return parseFloat(s).toString() === s.toString(); }
   }
   
   function Evaluator(expr) {

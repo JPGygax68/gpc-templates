@@ -33,15 +33,15 @@ function() {
     function isNumber(s) { return parseFloat(s).toString() === s.toString(); }
   }
   
-  function Evaluator(expr) {
+  function Evaluator(expr, filename, line_num) {
+    this.expr     = expr;
     // Create an expression evaluator function
-    var code = 'return (' + adaptExpression(expr) + ');';
-    // Make injected context available without prefix
-    /*
-    var statements = _.map(context, function(elem, name) { return 'var '+name+' = context["'+name+'"];' } );
-    statements.push(code);
-    var code = statements.join('\n');
-    */
+    var code = 'try {\n'
+             + '  return (' + adaptExpression(expr) + ');\n'
+             + '}\n'
+             + 'catch(e) {\n'
+             + '   throw new Error(e.message + \' in template file "'+filename+'", line #'+line_num+'\');\n'
+             + '}\n';
     //console.log(code);
     return Function.call(this, 'data', 'context', code);
   }

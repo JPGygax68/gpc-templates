@@ -5,9 +5,9 @@ if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define( ['./block', './evaluator'],
 function(   Block ,    Evaluator ) {
 
-  function Placeholder(expr) {
+  function Placeholder(expr, filename, line_num) {
     this.expr = expr;
-    this.exprEval = new Evaluator(expr);
+    this.exprEval = new Evaluator(expr, filename, line_num);
   }
   
   Placeholder.prototype = new Block();

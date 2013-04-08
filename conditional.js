@@ -14,10 +14,10 @@ function( Q ,    Structure ,    Evaluator ) {
   Conditional.prototype = new Structure();
   Conditional.prototype.constructor = Conditional;
   
-  Conditional.prototype.newBranch = function(condition) {
+  Conditional.prototype.newBranch = function(condition, filename, line_num) {
     // TODO: check for proper sequence if .. elsif .. else
     if (condition.length > 0) {
-      var condEval = new Evaluator(condition);
+      var condEval = new Evaluator(condition, filename, line_num);
     }
     else {
       var condEval = new Function('return true;');

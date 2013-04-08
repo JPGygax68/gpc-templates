@@ -5,11 +5,11 @@ if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define( ['underscore', './structure', './evaluator'],
 function( _          ,    Structure ,    Evaluator ) {
 
-  function JSList(params) {
+  function JSList(params, filename, line_num) {
     var params = params.split(' ').map( function(el) { return el.trim(); } );
     if (params.length < 1) throw new Error('List element needs at minimum the name of the list, and optionally the name of an element member');
     this.list = params[0];
-    if (params.length > 1) this.memberEval = new Evaluator(params[1]);
+    if (params.length > 1) this.memberEval = new Evaluator(params[1], filename, line_num);
   }
   
   JSList.prototype = new Structure();

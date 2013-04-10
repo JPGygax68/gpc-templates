@@ -3,7 +3,7 @@ GPC-Templates
 
 GPC-Templates (GPC being the namespace I use for my firm) is a fledgling template engine that I wrote for the purpose of generating Node bindings. I separated it out from my code generator module called [CWrap] [1].
 
-GPC-Templates superficially resembles [Mustache] [1] in that it uses double curly braces to delimit tags. But that's where the resemblence ends - where Mustache is an explicitly logic-less templating system, GPC-Templates is pretty much the opposite. As it was created to generate C++ code (though of course it can be used to generate other languages or indeed altogether different kinds of text files), and thus is intended as a tool for programmers, it supports constructs such as conditionals, iterators, and macros.
+GPC-Templates superficially resembles [Mustache] [2] in that it uses double curly braces to delimit tags. But that's where the resemblence ends - where Mustache is an explicitly logic-less templating system, GPC-Templates is pretty much the opposite. As it was created to generate C++ code (though of course it can be used to generate other languages or indeed altogether different kinds of text files), and thus is intended as a tool for programmers, it supports constructs such as conditionals, iterators, and macros.
 
 Getting started
 ---------------

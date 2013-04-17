@@ -2,12 +2,14 @@
 
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 
-define( ['./block', './macro'],
-function(   Block ,    Macro ) {
+define( ['Q', './block', './macro'],
+function( Q ,    Block ,    Macro ) {
 
-  function Call(params) {
+  function Call(params, filename, linenum, indent) {
     var params = params.split(' ').map( function(el) { return el.trim(); } );
     this.macro = params[0];
+    this.indent = indent;
+    console.log('Call indent: "'+this.indent+'"');
   }
   
   Call.prototype = new Block();
@@ -17,7 +19,11 @@ function(   Block ,    Macro ) {
     // Look up the macro in the library
     if (!(this.macro instanceof Macro)) this.macro = Macro.lib[this.macro];
     // Execute the called macro
-    return this.macro.execute(data, source, emitter, true);
+    var self = this;
+    return Q.resolve()
+      .then( function() { if (self.indent !== false) emitter.addIndent(self.indent); } )
+      .then( function() { return self.macro.execute(data, source, emitter, true); } )
+      .then( function() { if (self.indent !== false) emitter.popIndent(); } );
   }
   
   return Call;

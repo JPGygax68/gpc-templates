@@ -12,7 +12,9 @@ function(   Block ) {
   Text.prototype = new Block();
   Text.prototype.constructor = Text;
 
-  Text.prototype.execute = function(data, source, emitter) { return emitter(source.slice(this.start, this.end)); }
+  Text.prototype.execute = function(data, source, emitter) { 
+    return emitter(source.slice(this.start, this.end)); 
+  }
   
   return Text;
 });

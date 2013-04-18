@@ -26,35 +26,39 @@ function( Q, fs ,  _, Structure, Text, Placeholder, Conditional,
     while ((m = scanner.scan())) {
       line_num += m.line_breaks;
       // Span between last position and beginning of tag (with or without leading whitespace)
-      addChild( new Text(scanner.last_pos, m.start) );
+      addText(scanner.last_pos, m.start);
       // Tag type dependent actions
-      if      (m.command === '='      ) addChild( new Placeholder(m.params, filename, line_num) );
-      else if (m.command === 'if'     ) stack.push( addChild(new Conditional(m.params, filename, line_num)) );
-      else if (m.command === 'foreach') stack.push( addChild(new Repeater   (m.params, filename, line_num)) );
-      else if (m.command === 'forall' ) stack.push( addChild(new Repeater   (m.params, filename, line_num)) );
-      else if (m.command === 'macro'  ) stack.push( addChild(new Macro      (m.params, filename, line_num)) );
-      else if (m.command === 'elsif'  ) current().newBranch(m.params, filename, line_num);
-      else if (m.command === 'else'   ) current().newBranch(m.params, filename, line_num);
+      if      (m.command === '='      ) addCommand(Placeholder);
+      else if (m.command === 'if'     ) addBlock  (Conditional);
+      else if (m.command === 'foreach') addBlock  (Repeater   );
+      else if (m.command === 'forall' ) addBlock  (Repeater   );
+      else if (m.command === 'macro'  ) addBlock  (Macro      );
+      else if (m.command === 'elsif'  ) addBranch ()
+      else if (m.command === 'else'   ) addBranch ();
       else if (m.command === 'end'    ) stack.pop();
-      else if (m.command === 'list'   ) addChild( new JSList(m.params, filename, line_num) );
-      else if (m.command === 'call'   ) addChild( new Call(m.params, filename, line_num, !m.inline ? m.indent : false) );
+      else if (m.command === 'list'   ) addCommand(JSList     );
+      else if (m.command === 'call'   ) addCommand(Call       );
       else if (m.command[0] === '-'   ) ; // comment introducer, do nothing
       else                            throw new Error('Unrecognized template command "'+command+'"');
       // If this wasn't an inline tag, increment line number
       if (!m.inline) line_num ++;
     }
     // Add last block of text
-    addChild( new Text(scanner.last_pos, scanner.curr_pos) );
+    addText(scanner.last_pos, scanner.curr_pos);
     
     // Done!
     if (stack.length !== 1) throw new Error('Opening/closing tag inbalance: closing depth at '+stack.length+' instead of 1');
     this.root_block = stack[0];
-    //console.log( JSON.stringify(stack[0], null, "    ") );
 
     //---
-    function current()       { if (stack.length < 1) throw new Error('Block nesting error: too many $end\'s'); return stack[stack.length-1]; }
-    function addChild(child) { current().children.push(child); return child; }
     
+    function current()         { if (stack.length < 1) throw new Error('Block nesting error: too many $end\'s'); return stack[stack.length-1]; }
+    function makeCommand(ctor) { console.log(ctor);return new ctor(m.params, filename, line_num, !m.inline ? m.indent : false); }
+    function addCommand(ctor)  { var cmd = makeCommand(ctor); current().children.push(cmd); return cmd; }
+    function addBlock(ctor)    { stack.push( addCommand(ctor) ); }
+    function addBranch()       { current().newBranch(m.params, filename, line_num); }
+    function addText(from, to) { current().children.push( new Text(from, to) ); }
+        
     function sniffIndent() {
       var last_index_save = scanner.lastIndex;
       var level = 1;

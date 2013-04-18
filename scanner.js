@@ -40,8 +40,6 @@ function(   Commands ) {
       // Advance past tag (but keep the newline if the tag was inline and there was one)
       //this.curr_pos = this.re.lastIndex - (m[4] ? m[4].length : 0);
       this.curr_pos = this.re.lastIndex - ((match.inline && m[4]) ? m[4].length : 0);
-      
-      if (match.command == 'macro') console.log( this.sniffIndent() );
     }
     else {
       this.curr_pos = this.code.length;

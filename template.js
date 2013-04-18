@@ -45,7 +45,7 @@ function(  Q ,       fs ,  _          ,    Commands ,    Evaluator ,    Scanner 
     // Add last block of text
     addText(scanner.last_pos, scanner.curr_pos);
     line_num += countLineBreaks(scanner.last_pos, scanner.curr_pos);
-    console.log('Ending at line number ' + line_num);
+    //console.log('Ending at line number ' + line_num);
     
     // Done!
     if (stack.length !== 1) throw new Error('Opening/closing tag inbalance: closing depth at '+stack.length+' instead of 1');

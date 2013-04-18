@@ -6,10 +6,8 @@
  
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 
-define( [ 'q', 'q-io/fs', 'underscore', './structure', './text', './placeholder', './conditional', 
-          './repeater', './macro', './call', './jslist', './evaluator', './scanner' ],
-function( Q, fs ,  _, Structure, Text, Placeholder, Conditional, 
-          Repeater, Macro, Call, JSList, Evaluator, Scanner ) {
+define( [ 'q', 'q-io/fs', 'underscore', './commands', './evaluator', './scanner' ],
+function(  Q ,       fs ,  _          ,    Commands ,    Evaluator ,    Scanner  ) {
 
   //--- MAIN CLASS ---
   
@@ -17,7 +15,7 @@ function( Q, fs ,  _, Structure, Text, Placeholder, Conditional,
 
     this.code = code;
     
-    var stack = [ new Structure() ];
+    var stack = [ new Commands.Structure() ];
     
     // Analyze the template, breaking it up into a tree
     var scanner = new Scanner(code);
@@ -28,16 +26,16 @@ function( Q, fs ,  _, Structure, Text, Placeholder, Conditional,
       // Span between last position and beginning of tag (with or without leading whitespace)
       addText(scanner.last_pos, m.start);
       // Tag type dependent actions
-      if      (m.command === '='      ) addCommand(Placeholder);
-      else if (m.command === 'if'     ) addBlock  (Conditional);
-      else if (m.command === 'foreach') addBlock  (Repeater   );
-      else if (m.command === 'forall' ) addBlock  (Repeater   );
-      else if (m.command === 'macro'  ) addBlock  (Macro      );
+      if      (m.command === '='      ) addCommand(Commands.Placeholder);
+      else if (m.command === 'if'     ) addBlock  (Commands.Conditional);
+      else if (m.command === 'foreach') addBlock  (Commands.Repeater   );
+      else if (m.command === 'forall' ) addBlock  (Commands.Repeater   );
+      else if (m.command === 'macro'  ) addBlock  (Commands.Macro      );
+      else if (m.command === 'list'   ) addCommand(Commands.JSList     );
+      else if (m.command === 'call'   ) addCommand(Commands.Call       );
       else if (m.command === 'elsif'  ) addBranch ()
       else if (m.command === 'else'   ) addBranch ();
       else if (m.command === 'end'    ) stack.pop();
-      else if (m.command === 'list'   ) addCommand(JSList     );
-      else if (m.command === 'call'   ) addCommand(Call       );
       else if (m.command[0] === '-'   ) ; // comment introducer, do nothing
       else                            throw new Error('Unrecognized template command "'+command+'"');
       // If this wasn't an inline tag, increment line number
@@ -57,7 +55,7 @@ function( Q, fs ,  _, Structure, Text, Placeholder, Conditional,
     function addCommand(ctor)  { var cmd = makeCommand(ctor); current().children.push(cmd); return cmd; }
     function addBlock(ctor)    { stack.push( addCommand(ctor) ); }
     function addBranch()       { current().newBranch(m.params, filename, line_num); }
-    function addText(from, to) { current().children.push( new Text(from, to) ); }
+    function addText(from, to) { current().children.push( new Commands.Text(from, to) ); }
         
     function sniffIndent() {
       var last_index_save = scanner.lastIndex;

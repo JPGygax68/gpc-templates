@@ -10,6 +10,7 @@ function(   Structure ) {
     var params = params.split(' ').map( function(el) { return el.trim(); } );
     // Register ourselves in the macro library
     this.name = params[0];
+    this.outdent = false;
     Macro.lib[this.name] = this;
   }
   

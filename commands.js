@@ -23,16 +23,16 @@ function( _          ,    Structure ,    Text ,    Placeholder,     Conditional 
     JSList:       JSList,
     
     TAGS: {
-      '='      : { ctor: Placeholder, type: TYPES.STANDALONE   , nesting:  0},
-      'if'     : { ctor: Conditional, type: TYPES.BLOCK_START  , nesting:  1},
-      'foreach': { ctor: Repeater   , type: TYPES.BLOCK_START  , nesting:  1},
-      'forall' : { ctor: Repeater   , type: TYPES.BLOCK_START  , nesting:  1},
-      'macro'  : { ctor: Macro      , type: TYPES.BLOCK_START  , nesting:  1},
-      'list'   : { ctor: JSList     , type: TYPES.STANDALONE   , nesting:  0},
-      'call'   : { ctor: Call       , type: TYPES.STANDALONE   , nesting:  0},
-      'elsif'  : { ctor: null       , type: TYPES.BLOCK_DIVIDER, nesting:  0},
-      'else'   : { ctor: null       , type: TYPES.BLOCK_DIVIDER, nesting:  0},
-      'end'    : { ctor: null       , type: TYPES.BLOCK_END    , nesting: -1}
+      '='      : { ctor: Placeholder, type: TYPES.STANDALONE   },
+      'if'     : { ctor: Conditional, type: TYPES.BLOCK_START  },
+      'foreach': { ctor: Repeater   , type: TYPES.BLOCK_START  },
+      'forall' : { ctor: Repeater   , type: TYPES.BLOCK_START  },
+      'macro'  : { ctor: Macro      , type: TYPES.BLOCK_START  },
+      'list'   : { ctor: JSList     , type: TYPES.STANDALONE   },
+      'call'   : { ctor: Call       , type: TYPES.STANDALONE   },
+      'elsif'  : { ctor: null       , type: TYPES.BLOCK_DIVIDER},
+      'else'   : { ctor: null       , type: TYPES.BLOCK_DIVIDER},
+      'end'    : { ctor: null       , type: TYPES.BLOCK_END    }
     },
     
   }, TYPES );

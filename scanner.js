@@ -57,7 +57,7 @@ function(   Commands ) {
     
     var level = 1, m;
     while (level > 0 && (m = this.scan())) {
-      console.log(m.command);
+      //console.log(m.command);
       var cmd = Commands.TAGS[m.command];
       if (cmd) {
         if      (cmd.type === Commands.BLOCK_START  ) level ++;
@@ -75,7 +75,7 @@ function(   Commands ) {
     this.last_pos = saved.last_pos;
     this.curr_pos = saved.curr_pos;
     
-    console.log('sniffIndent => "'+indent+'", length =', indent.length);
+    //console.log('sniffIndent => "'+indent+'", length =', indent.length);
     
     return indent;
   }

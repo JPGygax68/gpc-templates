@@ -21,9 +21,13 @@ function( Q ,    Block ,    Macro ) {
     // Execute the called macro
     var self = this;
     return Q.resolve()
-      .then( function() { if (self.indent !== false) emitter.addIndent(self.indent); } )
+      .then( function() { console.log('Calling macro "'+self.macro.name+'", outdent = "'+self.macro.outdent+'"'); } )
+      .then( function() { if (self.indent        !== false) emitter.addIndent (self.indent); 
+                          if (self.macro.outdent !== false) emitter.addOutdent(self.macro.outdent); } )
       .then( function() { return self.macro.execute(data, source, emitter, true); } )
-      .then( function() { if (self.indent !== false) emitter.popIndent(); } );
+      .then( function() { if (self.indent        !== false) emitter.popIndent(); 
+                          if (self.macro.outdent !== false) emitter.popOutdent() } )
+      .then( function() { console.log('End of call "'+self.macro.name+'"'); } )
   }
   
   return Call;

@@ -60,9 +60,9 @@ function(  Q ,       fs ,  _          ,    Commands ,    Evaluator ,    Scanner 
     function beginBlock(ctor, outdent) { var cmd = addCommand(ctor); cmd.outdent = outdent; stack.push(cmd); return cmd; }
     function addBranch()               { current().newBranch(m.params, filename, line_num); }
     function addText(from, to)         { current().children.push( new Commands.Text(from, to) ); }
-    function beginMacro()              { beginBlock(Commands.Macro, current().outdent + scanner.sniffIndent());  }
+    function beginMacro()              { beginBlock(Commands.Macro, scanner.sniffIndent());  }
     function closeBlock()              { stack.pop(); }
-                                       
+
     function checkStack()              { if (stack.length < 1) throw new Error('Block nesting error: too many $end\'s'); }
         
     function countLineBreaks(from, to) {
@@ -86,22 +86,40 @@ function(  Q ,       fs ,  _          ,    Commands ,    Evaluator ,    Scanner 
     //console.log('context:');
     //console.log(context);
     
-    var indents = [], full_indent = '';
+    var indents  = [], full_indent  = '';
+    var outdents = [], full_outdent = '';
     var linebuf = '', last_line_empty = false;
     
     var emitter = function(text ) { 
       var lines = text.split(/\n\r|\r\n|\n|\r/);
-      for (var i = 0; i < (lines.length-1); i ++) { linebuf += lines[i]; flushLineBuffer(); }
-      linebuf += lines[i];
+      for (var i = 0; i < lines.length; i ++) { 
+        var line = lines[i];
+        linebuf += line; 
+        if (i < (lines.length-1)) flushLineBuffer(); 
+      }
     };
-    emitter.addIndent = function(indent) { indents.push(indent); full_indent = indents.join(''); };
-    emitter.popIndent = function()       { indents.pop()       ; full_indent = indents.join(''); };
+    
+    emitter.addIndent  = function(indent ) { indents .push(indent) ; full_indent  = indents .join(''); }
+    emitter.popIndent  = function()        { indents .pop ()       ; full_indent  = indents .join(''); }
+    emitter.addOutdent = function(outdent) { outdents.push(outdent); full_outdent = outdents.join(''); }
+    emitter.popOutdent = function()        { outdents.pop()        ; full_outdent = outdents.join(''); }
     
     return this.root_block.execute(data, this.code, emitter) .then( flushLineBuffer );
     
     function flushLineBuffer() { 
       if (linebuf.trim() === '') { if (!last_line_empty) { last_line_empty = true; emit('\n'); } }
-      else                       { last_line_empty = false; emit(full_indent + linebuf + '\n'); }
+      else { 
+        last_line_empty = false; 
+        linebuf = full_indent + linebuf;
+        //console.log('"'+linebuf+'", outdent="'+full_outdent+'"');
+        if (full_outdent.length > 0) {
+          if (linebuf.slice(0, full_outdent.length) === full_outdent) {
+            //console.log('outdenting "'+full_outdent+'"');
+            linebuf = linebuf.slice(full_outdent.length);
+          }
+        }
+        emit(linebuf + '\n'); 
+      }
       linebuf = ''; 
     }
     

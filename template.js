@@ -21,28 +21,31 @@ function(  Q ,       fs ,  _          ,    Commands ,    Evaluator ,    Scanner 
     var scanner = new Scanner(code);
     var line_num = 1;
     var m;
+    current().outdent = '';
     while ((m = scanner.scan())) {
-      line_num += m.line_breaks;
+      line_num += countLineBreaks(scanner.last_pos, m.start);
       // Span between last position and beginning of tag (with or without leading whitespace)
       addText(scanner.last_pos, m.start);
       // Tag type dependent actions
-      if      (m.command === '='      ) addCommand(Commands.Placeholder);
-      else if (m.command === 'if'     ) addBlock  (Commands.Conditional);
-      else if (m.command === 'foreach') addBlock  (Commands.Repeater   );
-      else if (m.command === 'forall' ) addBlock  (Commands.Repeater   );
-      else if (m.command === 'macro'  ) addBlock  (Commands.Macro      );
+      if      (m.command === '='      ) addCommand(Commands.Placeholder); 
+      else if (m.command === 'if'     ) beginBlock(Commands.Conditional);
+      else if (m.command === 'foreach') beginBlock(Commands.Repeater   );
+      else if (m.command === 'forall' ) beginBlock(Commands.Repeater   );
       else if (m.command === 'list'   ) addCommand(Commands.JSList     );
       else if (m.command === 'call'   ) addCommand(Commands.Call       );
-      else if (m.command === 'elsif'  ) addBranch ()
+      else if (m.command === 'macro'  ) beginMacro();
+      else if (m.command === 'elsif'  ) addBranch ();
       else if (m.command === 'else'   ) addBranch ();
-      else if (m.command === 'end'    ) stack.pop();
+      else if (m.command === 'end'    ) closeBlock();
       else if (m.command[0] === '-'   ) ; // comment introducer, do nothing
-      else                            throw new Error('Unrecognized template command "'+command+'"');
+      else                              throw new Error('Unrecognized template command "'+command+'"');
       // If this wasn't an inline tag, increment line number
       if (!m.inline) line_num ++;
     }
     // Add last block of text
     addText(scanner.last_pos, scanner.curr_pos);
+    line_num += countLineBreaks(scanner.last_pos, scanner.curr_pos);
+    console.log('Ending at line number ' + line_num);
     
     // Done!
     if (stack.length !== 1) throw new Error('Opening/closing tag inbalance: closing depth at '+stack.length+' instead of 1');
@@ -50,20 +53,25 @@ function(  Q ,       fs ,  _          ,    Commands ,    Evaluator ,    Scanner 
 
     //---
     
-    function current()         { if (stack.length < 1) throw new Error('Block nesting error: too many $end\'s'); return stack[stack.length-1]; }
-    function makeCommand(ctor) { console.log(ctor);return new ctor(m.params, filename, line_num, !m.inline ? m.indent : false); }
-    function addCommand(ctor)  { var cmd = makeCommand(ctor); current().children.push(cmd); return cmd; }
-    function addBlock(ctor)    { stack.push( addCommand(ctor) ); }
-    function addBranch()       { current().newBranch(m.params, filename, line_num); }
-    function addText(from, to) { current().children.push( new Commands.Text(from, to) ); }
+    function current()                 { checkStack(); return stack[stack.length-1]; }
+                                       
+    function makeCommand(ctor)         { return new ctor(m.params, filename, line_num, !m.inline ? m.indent : false); }
+    function addCommand(ctor)          { var cmd = makeCommand(ctor); current().children.push(cmd); return cmd; }
+    function beginBlock(ctor, outdent) { var cmd = addCommand(ctor); cmd.outdent = outdent; stack.push(cmd); return cmd; }
+    function addBranch()               { current().newBranch(m.params, filename, line_num); }
+    function addText(from, to)         { current().children.push( new Commands.Text(from, to) ); }
+    function beginMacro()              { beginBlock(Commands.Macro, current().outdent + scanner.sniffIndent());  }
+    function closeBlock()              { stack.pop(); }
+                                       
+    function checkStack()              { if (stack.length < 1) throw new Error('Block nesting error: too many $end\'s'); }
         
-    function sniffIndent() {
-      var last_index_save = scanner.lastIndex;
-      var level = 1;
-      while (level > 0) {
-        var m = scanner.exec(code);
+    function countLineBreaks(from, to) {
+      var count = 0;
+      for (var i = from; i < to; i++) {
+        if      (code[i] === '\n') { count++; if (code[i+1] === '\r') i++; }
+        else if (code[i] === '\r') { count++; if (code[i+1] === '\n') i++; }
       }
-      scanner.lastIndex = lastIndexSave;
+      return count;
     }
   }
   

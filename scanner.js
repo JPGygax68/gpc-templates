@@ -67,8 +67,13 @@ function(   Commands ) {
     var text = this.code.slice(saved.curr_pos, m.start);
     var indent = '                                             ';
     //var lines = text.split(/\n\r|\r\n|\n|\r/);
-    var re = /(^[ \t]*)([^ \t])/gm, m;
-    while ((m = re.exec(text))) { if (m && m[1] && m[1].length < indent.length) indent = m[1]; }    
+    var re = /(^[ \t]*)([^ \t\n\r])/gm, m;
+    while ((m = re.exec(text))) { 
+      //console.log('Indent sniffing: "'+m[1]+'|'+m[2]+'"');
+      if      (!m[1])                       indent = '';
+      else if (m[1].length < indent.length) indent = m[1].toString();
+      if (indent === '') break;
+    }    
     
     this.last_pos = saved.last_pos;
     this.curr_pos = saved.curr_pos;

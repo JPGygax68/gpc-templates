@@ -1,3 +1,5 @@
+// TODO: pseudo-command that generates an exception (for if/elsif/else)
+
 "use strict";
 
 /** Template system designed to generate C++ glue code.

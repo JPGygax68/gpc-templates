@@ -1,14 +1,16 @@
 GPC-Templates
 =============
 
-GPC-Templates (GPC being the namespace I use for my firm) is a fledgling template engine that I wrote for the purpose of generating Node bindings. I separated it out from my code generator module called [CWrap] [1].
+GPC-Templates (GPC being the namespace I use for my firm) is a template engine that I wrote for the purpose of generating Node bindings. I separated it out from my code generator module called [CWrap] [1].
 
 GPC-Templates superficially resembles [Mustache] [2] in that it uses double curly braces to delimit tags. But that's where the resemblence ends - where Mustache is an explicitly logic-less templating system, GPC-Templates is pretty much the opposite. As it was created to generate C++ code (though of course it can be used to generate other languages or indeed altogether different kinds of text files), and thus is intended as a tool for programmers, it supports constructs such as conditionals, iterators, and macros.
 
 Getting started
 ---------------
 
-I'm currently (at the time of writing) using GPC-Templates to generate Node bindings for OpenGL. That project isn't ripe for release yet, so I've just copied the current state of its template into the sample subdirectory. (Later, you will be able to the OpenGL bindings themselves, and possibly other projects, as samples.)
+GPC-Templates is "promisified", meaning that calling it's main `exec()` method will return immediately, but it's actual work will only be done once the *promise* it returned has been *resolved* (to learn how promises work, take a look at Kris Kowalski's [Q library] [3] that GPC-Templates uses). While this may at first glance look like an unnecessary complication, it makes it possible to generate very large files in a purely asynchrous environment such as a browser.
+
+I'm currently using GPC-Templates to generate bindings for OpenGL and a closed-source DLL that is part of train simulator. Both these templates are at the experimental stage at the time of writing, but I've added them to the samples/ directory for you to look at.
 
 Let's get the template syntax out of the way - it's really simple:
   - Tags are introduced with the characters `{{$` and closed with `}}`.
@@ -22,10 +24,13 @@ Let's get the template syntax out of the way - it's really simple:
 
 The module `gpc-templates` exports a constructor internally called `Template`, which takes the template code and filename for parameters (the filename is informative only, it is only used for error messages; it is up to you to read the template file).
 
+As mentioned above, code generation starts upon calling the method `exec()`. This takes two parameters: the template code (which is a string) and the *writer*, obtained for example from a call to the [q-io] [5] method `open()`.
+
 The constructor function also has a "static" member `registerFunction()`. This takes two parameters, a function name and a Function object. Only functions registered in this way will be callable from your template (such as in if/elsif conditions or in placeholder elements); all JavaScript functions, builtin or other, are hidden.
 
-2013-04-10 Jean-Pierre Gygax, practicomp.ch
+2013-04-20 Jean-Pierre Gygax, practicomp.ch
 
 
   [1]: https://github.com/JPGygax68/node-cwrap
   [2]: http://mustache.github.com/
+  [3]: https://github.com/kriskowal/q
